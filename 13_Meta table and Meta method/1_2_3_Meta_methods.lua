@@ -36,6 +36,26 @@ function Set.intersection (a, b)
 end
 mt.__mul = Set.intersection
 
+function Set.subtract (a, b)
+    local res = Set.new{}
+    for k in pairs(a) do
+        if not b[k] then
+            res[k] = true
+        end
+    end
+    return res
+end
+mt.__sub = Set.subtract
+
+function Set.length(s)
+    local count = 0;
+    for k in pairs(s) do
+        count = count + 1
+    end
+    return count
+end
+mt.__len = Set.length
+
 -- 집합의 포함 관계.
 mt.__le = function (a, b)
     for k in pairs(a) do
@@ -78,6 +98,9 @@ Set.print(s3)
 
 local s4 = s3 * s1
 Set.print(s4)
+
+Set.print(s1 - s2)
+print(#s1)
 
 -- Error!
 --s1 = s1 + 8

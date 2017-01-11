@@ -68,4 +68,66 @@ t[2] = "hello"
 for _, v in pairs(t) do
     print(_, v)
 end
-print("hello world")
+
+----
+
+local index_original = {}           -- 내부에서 사용할 인덱스 생성.
+local mt = {                        -- 메타테이블 생성.
+    __index = function(t, k)
+        print("*Access to element " .. tostring(k))
+        return t[index_original][k] -- 원본 테이블에 접근.
+    end,
+
+    __newindex = function(t, k, v)
+        print("*Update of element " .. tostring(k) .. " to " .. tostring(v))
+        t[index_original][k] = v             -- 원본 테이블 갱신.
+    end,
+
+    __pairs = function(t)
+        return function(t, k)
+            return next(t[index_original], k)
+        end, t
+    end
+}
+
+local function track (t)
+    local proxy = {}
+    proxy[index_original] = t
+    setmetatable(proxy, mt)
+    return proxy
+end
+
+local t = {}
+t = track(t)
+t[1] = "My"
+t[2] = "Song"
+for _, v in pairs(t) do
+    print(v)
+end
+
+local readOnly_mt = {}
+readOnly_mt.__index = function (t, k)
+    return t[k]
+end
+readOnly_mt.__newindex = function (t, k, v)
+    error("Attempt to update a read-only table", 2)
+end
+
+local function readOnly (t)
+    local proxy = {}
+    --[[
+    local mt = {
+        __index = t,
+        __newindex = function (t, k, v)
+            error("Attempt to update a read-only table", 2)
+        end
+    }
+    setmetatable(proxy, mt)
+    --]]
+    setmetatable(proxy, readOnly_mt)
+    return proxy
+end
+
+local t = {1, 2}
+t = readOnly(t)
+t[1] = 3
