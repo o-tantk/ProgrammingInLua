@@ -50,4 +50,4 @@ end
 
 s:deposit(1000.00)
 print(s.balance)
-s:withdraw(110.00)
+--s:withdraw(110.00)
